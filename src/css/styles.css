@@ -1,0 +1,74 @@
+.container {
+  display: flex;
+  padding-top: 5em;
+  margin: 0 10em;
+}
+
+td {
+  border: solid 1px;              /* 枠線指定 */
+  width: 10%;
+}
+
+table {
+  margin: 0 auto;
+  border-collapse:  collapse;     /* セルの線を重ねる */
+  border-bottom: 3px solid black;
+  border-right: 3px solid black;
+  border-left: 3px solid black;
+  width: 40vh;
+  height: 80vh;
+  color: rgba(173, 173, 173, 0.836);
+}
+
+#play-area-box {
+  flex: 3;
+}
+
+#next-tetriminos-area-box {
+  flex: 1;
+  border: 3px solid black;
+  height: 50vh;
+  margin-left: 2em;
+}
+
+#record-area-box {
+  flex: 1;
+  border: 3px solid black;
+  height: 50vh;
+  margin-right: 2em;
+}
+
+.I {
+  background: rgb(39, 223, 255);
+  border: 1px solid black;
+}
+
+.L1 {
+  background: rgb(23, 38, 236);
+  border: 1px solid black;
+}
+
+.L2 {
+  background: rgb(255, 143, 39);
+  border: 1px solid black;
+}
+
+.O {
+  background: rgb(255, 239, 15);
+  border: 1px solid black;
+}
+
+.Z1 {
+  background: rgb(39, 255, 50);
+  border: 1px solid black;
+}
+
+.Z2 {
+  background: rgb(243, 8, 8);
+  border: 1px solid black;
+}
+
+.T {
+  background: rgb(140, 39, 255);
+  border: 1px solid black;
+}
