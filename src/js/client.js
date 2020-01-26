@@ -132,6 +132,21 @@ class Game extends React.Component {
     }
   }
 
+  lineEraser() {
+    let squares = this.state.squares;
+    console.log(squares);
+    for(let i = 19; i >= 0; i-=1) {
+      if (squares[i].indexOf(null) == -1) {
+        console.log("Line Eraser");
+        squares.splice(i, i);
+        i += 1;
+        squares.unshift((new Array(10)).fill(null))
+      }
+    }
+    this.setState({squares: squares});
+    console.log(squares);
+  }
+
   countDown() {
     // テトリミノを初期位置にセットする場合
     if (this.state.isInitialize) {
@@ -140,7 +155,6 @@ class Game extends React.Component {
       this.setState({current_tetrimino: next_tetriminos[0]});
       next_tetriminos.shift();
       next_tetriminos.push(generateTetrimino());
-      // this.tetriminoUnset();
       this.setState({current_coodinate: {x: 4, y: 0}});
       this.tetriminoSet();
     }
@@ -150,7 +164,7 @@ class Game extends React.Component {
       if (!this.setNextCoodinate()) {
         this.setState({isInitialize: true});
         this.tetriminoSet();
-        // this.setState({current_coodinate: {x: 4, y: 0}});
+        this.lineEraser();
       } else {
         this.tetriminoSet();
       }
