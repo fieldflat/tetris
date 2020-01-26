@@ -8,7 +8,7 @@ class Game extends React.Component {
       squares: (new Array(20)).fill(null).map(() => (new Array(10)).fill(null)),
       points: 0,
       move_counts: 0,
-      fall_speed: 300,
+      fall_speed: 1000,
       current_tetrimino: generateTetrimino(),
       isInitialize: true,
       current_coodinate: {x: 4, y: 0},
@@ -67,31 +67,30 @@ class Game extends React.Component {
   rotateCoodinate(direction) {
     let x, y;
     let isSet = true; // 次のcoodinateでセットできるか判定する．
-    let now_id = this.state.current_tetrimino['id'];
+    const current_tetrimino = Object.assign({}, this.state.current_tetrimino);
+    let now_id = current_tetrimino['id'];
     let newTetrimino;
-    console.log(now_id);
 
     if (direction == 'right') {
       newTetrimino = returnTetrimino((now_id+100)%400);
-      this.setState({current_tetrimino: newTetrimino});
     } else if (direction == 'left') {
       now_id = (now_id-100 < 0) ? now_id+400 : now_id
       newTetrimino = returnTetrimino((now_id-100)%400);
-      this.setState({current_tetrimino: newTetrimino})
     }
 
     for(let i = 0; i < 4; i += 1) {
-      x = this.state.current_coodinate['x'] + this.state.current_tetrimino['position'][i]['x'];
-      y = this.state.current_coodinate['y'] + this.state.current_tetrimino['position'][i]['y'];
+      x = this.state.current_coodinate['x'] + newTetrimino['position'][i]['x'];
+      y = this.state.current_coodinate['y'] + newTetrimino['position'][i]['y'];
 
       if ((x > 9 || x < 0) || (y > 19 || y < 0) || this.state.squares[y][x]) {
+        console.log(x, y);
         isSet = false;
         break;
       }
     }
     // 次のcoodinateでセットできる場合は，current_coodinateをセットする
     if (isSet) {
-      this.setState({ current_coodinate: { x: this.state.current_coodinate['x'], y: this.state.current_coodinate['y'] } });
+      this.setState({ current_tetrimino: newTetrimino });
       return true;
     }
     // セットできない場合は，
@@ -142,6 +141,7 @@ class Game extends React.Component {
       next_tetriminos.shift();
       next_tetriminos.push(generateTetrimino());
       // this.tetriminoUnset();
+      this.setState({current_coodinate: {x: 4, y: 0}});
       this.tetriminoSet();
     }
     // テトリミノを初期位置にセットしない場合
@@ -150,7 +150,7 @@ class Game extends React.Component {
       if (!this.setNextCoodinate()) {
         this.setState({isInitialize: true});
         this.tetriminoSet();
-        this.setState({current_coodinate: {x: 4, y: 0}});
+        // this.setState({current_coodinate: {x: 4, y: 0}});
       } else {
         this.tetriminoSet();
       }
@@ -314,9 +314,9 @@ function returnTetrimino(tetrimino_id) {
     case 202:
       return {type: 'T', position: [{x:0, y:0}, {x:1, y:0}, {x:2, y:0}, {x:1, y:1}], rotate: 180, id: 202};
     case 203:
-      return {type: 'J', position: [{x:0, y:0}, {x:0, y:1}, {x:1, y:0}, {x:2, y:0}], rotate: 180, id: 203};
+      return {type: 'J', position: [{x:0, y:0}, {x:2, y:1}, {x:1, y:0}, {x:2, y:0}], rotate: 180, id: 203};
     case 204:
-      return {type: 'L', position: [{x:2, y:0}, {x:0, y:0}, {x:1, y:0}, {x:2, y:1}], rotate: 180, id: 204};
+      return {type: 'L', position: [{x:2, y:0}, {x:0, y:0}, {x:1, y:0}, {x:0, y:1}], rotate: 180, id: 204};
     case 205:
       return {type: 'S', position: [{x:1, y:0}, {x:2, y:0}, {x:0, y:1}, {x:1, y:1}], rotate: 180, id: 205};
     case 206:
