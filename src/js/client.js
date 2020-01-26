@@ -16,63 +16,48 @@ class Game extends React.Component {
     }
   }
 
+  // 降下中のテトリミノの状態をセットし，描写する
   tetriminoSet() {
     let squares = this.state.squares;
-    squares[this.state.current_coodinate['y']][this.state.current_coodinate['x']] = this.state.current_tetrimino[0][0];
-    squares[this.state.current_coodinate['y']][this.state.current_coodinate['x']+1] = this.state.current_tetrimino[0][1];
-    squares[this.state.current_coodinate['y']][this.state.current_coodinate['x']+2] = this.state.current_tetrimino[0][2];
-    squares[this.state.current_coodinate['y']][this.state.current_coodinate['x']+3] = this.state.current_tetrimino[0][3];
-    squares[this.state.current_coodinate['y']+1][this.state.current_coodinate['x']] = this.state.current_tetrimino[1][0];
-    squares[this.state.current_coodinate['y']+1][this.state.current_coodinate['x']+1] = this.state.current_tetrimino[1][1];
-    squares[this.state.current_coodinate['y']+1][this.state.current_coodinate['x']+2] = this.state.current_tetrimino[1][2];
-    squares[this.state.current_coodinate['y']+1][this.state.current_coodinate['x']+3] = this.state.current_tetrimino[1][3];
-    squares[this.state.current_coodinate['y']+2][this.state.current_coodinate['x']] = this.state.current_tetrimino[2][0];
-    squares[this.state.current_coodinate['y']+2][this.state.current_coodinate['x']+1] = this.state.current_tetrimino[2][1];
-    squares[this.state.current_coodinate['y']+2][this.state.current_coodinate['x']+2] = this.state.current_tetrimino[2][2];
-    squares[this.state.current_coodinate['y']+2][this.state.current_coodinate['x']+3] = this.state.current_tetrimino[2][3];
-    squares[this.state.current_coodinate['y']+3][this.state.current_coodinate['x']] = this.state.current_tetrimino[3][0];
-    squares[this.state.current_coodinate['y']+3][this.state.current_coodinate['x']+1] = this.state.current_tetrimino[3][1];
-    squares[this.state.current_coodinate['y']+3][this.state.current_coodinate['x']+2] = this.state.current_tetrimino[3][2];
-    squares[this.state.current_coodinate['y']+3][this.state.current_coodinate['x']+3] = this.state.current_tetrimino[3][3];
+    for(let i = 0; i < 4; i += 1) {
+      let x = this.state.current_coodinate['x'] + this.state.current_tetrimino['position'][i]['x'];
+      let y = this.state.current_coodinate['y'] + this.state.current_tetrimino['position'][i]['y'];
+      squares[y][x] = this.state.current_tetrimino['type'];
+    }
     this.setState({squares: squares});
   }
 
+  // 降下中のテトリミノの状態をアンセットする
   tetriminoUnset() {
     let squares = this.state.squares;
-    squares[this.state.current_coodinate['y']-1][this.state.current_coodinate['x']] = null;
-    squares[this.state.current_coodinate['y']-1][this.state.current_coodinate['x'] + 1] = null;
-    squares[this.state.current_coodinate['y']-1][this.state.current_coodinate['x'] + 2] = null;
-    squares[this.state.current_coodinate['y']-1][this.state.current_coodinate['x'] + 3] = null;
-    squares[this.state.current_coodinate['y']][this.state.current_coodinate['x']] = null;
-    squares[this.state.current_coodinate['y']][this.state.current_coodinate['x'] + 1] = null;
-    squares[this.state.current_coodinate['y']][this.state.current_coodinate['x'] + 2] = null;
-    squares[this.state.current_coodinate['y']][this.state.current_coodinate['x'] + 3] = null;
-    squares[this.state.current_coodinate['y'] + 1][this.state.current_coodinate['x']] = null;
-    squares[this.state.current_coodinate['y'] + 1][this.state.current_coodinate['x'] + 1] = null;
-    squares[this.state.current_coodinate['y'] + 1][this.state.current_coodinate['x'] + 2] = null;
-    squares[this.state.current_coodinate['y'] + 1][this.state.current_coodinate['x'] + 3] = null;
-    squares[this.state.current_coodinate['y'] + 2][this.state.current_coodinate['x']] = null;
-    squares[this.state.current_coodinate['y'] + 2][this.state.current_coodinate['x'] + 1] = null;
-    squares[this.state.current_coodinate['y'] + 2][this.state.current_coodinate['x'] + 2] = null;
-    squares[this.state.current_coodinate['y'] + 2][this.state.current_coodinate['x'] + 3] = null;
+    for (let i = 0; i < 4; i += 1) {
+      let x = this.state.current_coodinate['x'] + this.state.current_tetrimino['position'][i]['x'];
+      let y = this.state.current_coodinate['y'] + this.state.current_tetrimino['position'][i]['y'];
+      squares[y][x] = null;
+    }
     this.setState({ squares: squares });
   }
 
+  // current_coodinateのy座標を1降下させる．
+  setNextCoodinate() {
+    let nextX = this.state.current_coodinate['x'];
+    let nextY = this.state.current_coodinate['y'];
+    this.setState({ current_coodinate: { x: nextX, y: nextY + 1 } });
+  }
+
   countDown() {
-    // テトリミノを選択する場合
+    // テトリミノを初期位置にセットする場合
     if (this.state.isInitialize) {
       this.setState({isInitialize: false});
       this.setState({current_tetrimino: generateTetrimino()});
       this.tetriminoSet();
     }
-    // テトリミノを選択しない場合
+    // テトリミノを初期位置にセットしない場合
     else {
       this.tetriminoUnset();
+      this.setNextCoodinate();
       this.tetriminoSet();
     }
-    let nextX = this.state.current_coodinate['x'];
-    let nextY = this.state.current_coodinate['y'];
-    this.setState({ current_coodinate: { x: nextX, y: nextY + 1 } });
   }
 
   // 初期化時に、countDownメソッドを1秒ごとに呼び出すタイマーを設定
@@ -185,45 +170,24 @@ const app = document.getElementById('app');
 ReactDOM.render(<Game/>, app);
 
 function generateTetrimino() {
-  return returnTetriminoArray(Math.floor((Math.random()) * 7));
+  return returnTetrimino(Math.floor((Math.random()) * 7));
 }
 
-function returnTetriminoArray(tetrimino_id) {
+function returnTetrimino(tetrimino_id) {
   switch(tetrimino_id) {
     case 0:
-      return [['I', 'I', 'I', 'I'],
-              [null, null, null, null],
-              [null, null, null, null],
-              [null, null, null, null]]
+      return {type: 'I', position: [{x:0, y:0}, {x:0, y:1}, {x:0, y:2}, {x:0, y:3}], rotate: 0};
     case 1:
-      return [['L1', null, null, null],
-              ['L1', 'L1', 'L1', null],
-              [null, null, null, null],
-              [null, null, null, null]]
+      return {type: 'O', position: [{x:0, y:0}, {x:0, y:1}, {x:1, y:0}, {x:1, y:1}], rotate: 0};
     case 2:
-      return [[null, null, 'L2', null],
-              ['L2', 'L2', 'L2', null],
-              [null, null, null, null],
-              [null, null, null, null]]
+      return {type: 'T', position: [{x:0, y:1}, {x:1, y:1}, {x:2, y:1}, {x:1, y:0}], rotate: 0};
     case 3:
-      return [[null, 'O', 'O', null],
-              [null, 'O', 'O', null],
-              [null, null, null, null],
-              [null, null, null, null]]
+      return {type: 'J', position: [{x:0, y:0}, {x:0, y:1}, {x:1, y:1}, {x:2, y:1}], rotate: 0};
     case 4:
-      return [['Z1', 'Z1', null, null],
-              [null, 'Z1', 'Z1', null],
-              [null, null, null, null],
-              [null, null, null, null]]
+      return {type: 'L', position: [{x:2, y:0}, {x:0, y:1}, {x:1, y:1}, {x:2, y:1}], rotate: 0};
     case 5:
-      return [[null, 'Z2', 'Z2', null],
-              ['Z2', 'Z2', null, null],
-              [null, null, null, null],
-              [null, null, null, null]]
+      return {type: 'S', position: [{x:1, y:0}, {x:2, y:0}, {x:0, y:1}, {x:1, y:1}], rotate: 0};
     case 6:
-      return [[null, 'T', null, null],
-              ['T', 'T', 'T', null],
-              [null, null, null, null],
-              [null, null, null, null]]
+      return {type: 'Z', position: [{x:0, y:0}, {x:1, y:0}, {x:1, y:1}, {x:2, y:1}], rotate: 0};
   }
 }
