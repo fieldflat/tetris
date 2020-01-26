@@ -8,7 +8,7 @@ class Game extends React.Component {
       squares: (new Array(20)).fill(null).map(() => (new Array(10)).fill(null)),
       points: 0,
       move_counts: 0,
-      fall_speed: 1.0,
+      fall_speed: 300,
       current_tetrimino: generateTetrimino(),
       isInitialize: true,
       current_coodinate: {x: 4, y: 0},
@@ -38,31 +38,80 @@ class Game extends React.Component {
     this.setState({ squares: squares });
   }
 
-  // current_coodinateのy座標を1降下させる．
-  setNextCoodinate() {
-    let nextX = this.state.current_coodinate['x'];
-    let nextY = this.state.current_coodinate['y'];
-    this.setState({ current_coodinate: { x: nextX, y: nextY + 1 } });
+  // current_coodinateを変更する
+  setNextCoodinate(moveX=0, moveY=1) {
+    let x, y;
+    let isSet = true; // 次のcoodinateでセットできるか判定する．
+
+    for(let i = 0; i < 4; i += 1) {
+      x = this.state.current_coodinate['x'] + this.state.current_tetrimino['position'][i]['x'] + moveX;
+      y = this.state.current_coodinate['y'] + this.state.current_tetrimino['position'][i]['y'] + moveY;
+
+      if ((x > 9 || x < 0) || (y > 19 || y < 0) || this.state.squares[y][x]) {
+        isSet = false;
+        break;
+      }
+    }
+    // 次のcoodinateでセットできる場合は，current_coodinateをセットする
+    if (isSet) {
+      this.setState({ current_coodinate: { x: this.state.current_coodinate['x'] + moveX, y: this.state.current_coodinate['y'] + moveY } });
+      return true;
+    }
+    // セットできない場合は，
+    else {
+      return false;
+    }
+  }
+
+  handleKeyDown(e) {
+    let x = this.state.current_coodinate['x'];
+    let y = this.state.current_coodinate['y'];
+    switch(e.keyCode) {
+      case 37:
+        this.tetriminoUnset();
+        this.setNextCoodinate(-1, 0);
+        this.tetriminoSet();
+        break;
+      case 39:
+        this.tetriminoUnset();
+        this.setNextCoodinate(1, 0);
+        this.tetriminoSet();
+        break;
+      case 40:
+        this.tetriminoUnset();
+        this.setNextCoodinate(0, 1);
+        this.tetriminoSet();
+        break;
+    }
   }
 
   countDown() {
     // テトリミノを初期位置にセットする場合
     if (this.state.isInitialize) {
+      let next_tetriminos = this.state.next_tetriminos;
       this.setState({isInitialize: false});
-      this.setState({current_tetrimino: generateTetrimino()});
+      this.setState({current_tetrimino: next_tetriminos[0]});
+      next_tetriminos.shift();
+      next_tetriminos.push(generateTetrimino());
       this.tetriminoSet();
     }
     // テトリミノを初期位置にセットしない場合
     else {
       this.tetriminoUnset();
-      this.setNextCoodinate();
-      this.tetriminoSet();
+      if (!this.setNextCoodinate()) {
+        this.setState({isInitialize: true});
+        this.tetriminoSet();
+        this.setState({current_coodinate: {x: 4, y: 0}});
+      } else {
+        this.tetriminoSet();
+      }
     }
   }
 
   // 初期化時に、countDownメソッドを1秒ごとに呼び出すタイマーを設定
   componentDidMount() {
-    this.interval = setInterval(() => this.countDown(), 1000);
+    this.interval = setInterval(() => this.countDown(), this.state.fall_speed);
+    window.addEventListener('keydown', this.handleKeyDown.bind(this))
   }
 
   // 終了処理として、タイマーをクリアする
@@ -77,7 +126,8 @@ class Game extends React.Component {
         <PlayArea current_tetrimino={this.state.current_tetrimino}
                   current_coodinate={this.state.current_coodinate}
                   fall_speed={this.state.fall_speed}
-                  squares={this.state.squares} />
+                  squares={this.state.squares}
+                  onKeyDown={() => console.log('TETRIS')} />
         <NextTetriminosArea next_tetriminos={this.state.next_tetriminos} />
       </div>
     );
@@ -161,13 +211,18 @@ class NextTetriminosArea extends React.Component {
     return (
       <div id="next-tetriminos-area-box">
         <h1>Next Tetriminos Area</h1>
+        <p>{this.props.next_tetriminos[0]['type']}</p>
+        <p>{this.props.next_tetriminos[1]['type']}</p>
+        <p>{this.props.next_tetriminos[2]['type']}</p>
+        <p>{this.props.next_tetriminos[3]['type']}</p>
+        <p>{this.props.next_tetriminos[4]['type']}</p>
       </div>
     );
   }
 }
 
 const app = document.getElementById('app');
-ReactDOM.render(<Game/>, app);
+ReactDOM.render(<Game />, app);
 
 function generateTetrimino() {
   return returnTetrimino(Math.floor((Math.random()) * 7));
