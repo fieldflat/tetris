@@ -9,8 +9,9 @@ class Game extends React.Component {
       points: 0,
       move_counts: 0,
       fall_speed: 1000,
-      current_tetrimino: generateTetrimino(),
+      current_tetrimino: null,
       isInitialize: true,
+      handledownActive: false,
       current_coodinate: {x: 4, y: 0},
       next_tetriminos: [generateTetrimino(), generateTetrimino(), generateTetrimino(), generateTetrimino(), generateTetrimino()],
     }
@@ -83,7 +84,6 @@ class Game extends React.Component {
       y = this.state.current_coodinate['y'] + newTetrimino['position'][i]['y'];
 
       if ((x > 9 || x < 0) || (y > 19 || y < 0) || this.state.squares[y][x]) {
-        console.log(x, y);
         isSet = false;
         break;
       }
@@ -100,9 +100,11 @@ class Game extends React.Component {
   }
 
   handleKeyDown(e) {
+    if (!this.state.current_tetrimino || !this.state.handledownActive) {
+      return;
+    }
     let x = this.state.current_coodinate['x'];
     let y = this.state.current_coodinate['y'];
-    console.log(e.keyCode);
     switch(e.keyCode) {
       case 37:
         this.tetriminoUnset();
@@ -116,8 +118,14 @@ class Game extends React.Component {
         break;
       case 40:
         this.tetriminoUnset();
-        this.setNextCoodinate(0, 1);
-        this.tetriminoSet();
+        if (!this.setNextCoodinate(0, 1)) {
+          this.setState({ isInitialize: true });
+          this.setState({ handledownActive: false })
+          this.tetriminoSet();
+          this.lineEraser();
+        } else {
+          this.tetriminoSet();
+        }
         break;
       case 83:
         this.tetriminoUnset();
@@ -133,18 +141,17 @@ class Game extends React.Component {
   }
 
   lineEraser() {
+    this.setState({handledownActive: false})
     let squares = this.state.squares;
-    console.log(squares);
     for(let i = 19; i >= 0; i-=1) {
       if (squares[i].indexOf(null) == -1) {
         console.log("Line Eraser");
-        squares.splice(i, i);
+        squares.splice(i, 1);
         i += 1;
         squares.unshift((new Array(10)).fill(null))
       }
     }
     this.setState({squares: squares});
-    console.log(squares);
   }
 
   countDown() {
@@ -156,6 +163,7 @@ class Game extends React.Component {
       next_tetriminos.shift();
       next_tetriminos.push(generateTetrimino());
       this.setState({current_coodinate: {x: 4, y: 0}});
+      this.setState({ handledownActive: true })
       this.tetriminoSet();
     }
     // テトリミノを初期位置にセットしない場合
@@ -163,9 +171,11 @@ class Game extends React.Component {
       this.tetriminoUnset();
       if (!this.setNextCoodinate()) {
         this.setState({isInitialize: true});
+        this.setState({ handledownActive: false })
         this.tetriminoSet();
         this.lineEraser();
       } else {
+        this.setState({ handledownActive: true })
         this.tetriminoSet();
       }
     }
@@ -189,8 +199,7 @@ class Game extends React.Component {
         <PlayArea current_tetrimino={this.state.current_tetrimino}
                   current_coodinate={this.state.current_coodinate}
                   fall_speed={this.state.fall_speed}
-                  squares={this.state.squares}
-                  onKeyDown={() => console.log('TETRIS')} />
+                  squares={this.state.squares} />
         <NextTetriminosArea next_tetriminos={this.state.next_tetriminos} />
       </div>
     );
